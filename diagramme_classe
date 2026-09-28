@@ -1,0 +1,69 @@
+@startuml
+enum Role {
+  VISITEUR
+  GESTIONNAIRE
+  ADMINISTRATEUR
+}
+
+enum TypeVehicule {
+  VOITURE
+  CAMION
+  MOTO
+  UTILITAIRE
+}
+
+class Utilisateur {
+  - id : Long
+  - nom : String
+  - prenom : String
+  - email : String
+  - motDePasse : String
+  - actif : Boolean
+  - role : Role
+  + sInscrire()
+  + seConnecter()
+  + modifierProfil()
+  + changerMotDePasse()
+}
+
+class Flotte {
+  - id : Long
+  - nom : String
+  - centreLatitude : Double
+  - centreLongitude : Double
+  - rayonMeters : Double
+  + ajouterVehicule()
+  + retirerVehicule()
+  + modifierZone()
+}
+
+class Conducteur {
+  - id : Long
+  - nom : String
+  - prenom : String
+  - telephone : String
+}
+
+class Vehicule {
+  - id : Long
+  - immatriculation : String
+  - type : TypeVehicule
+  - actif : Boolean
+  + associerConducteur()
+  + dissocierConducteur()
+}
+
+class Alerte {
+  - id : Long
+  - horodatage : LocalDateTime
+  - latitude : Double
+  - longitude : Double
+  - message : String
+}
+
+' Relations
+Utilisateur "1" -- "0..*" Flotte : gere >
+Flotte "1" -- "0..*" Vehicule : contient >
+Vehicule "0..1" -- "0..1" Conducteur : conduit <
+Vehicule "1" -- "0..*" Alerte : subit >
+@enduml
