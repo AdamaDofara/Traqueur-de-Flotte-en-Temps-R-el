@@ -1,6 +1,6 @@
 @startuml
 enum Role {
-  VISITEUR
+  CONDUCTEUR
   GESTIONNAIRE
   ADMINISTRATEUR
 }
@@ -62,8 +62,9 @@ class Alerte {
 }
 
 ' Relations
-Utilisateur "1" -- "0..*" Flotte : gere >
+Utilisateur "1" -- "0..2" Flotte : gere >
 Flotte "1" -- "0..*" Vehicule : contient >
 Vehicule "0..1" -- "0..1" Conducteur : conduit <
 Vehicule "1" -- "0..*" Alerte : subit >
+Utilisateur <|-- Conducteur 
 @enduml
