@@ -9,7 +9,6 @@ enum TypeVehicule {
   VOITURE
   CAMION
   MOTO
-  UTILITAIRE
 }
 
 class Utilisateur {
@@ -20,6 +19,7 @@ class Utilisateur {
   - motDePasse : String
   - actif : Boolean
   - role : Role
+  - telephone : String
   + sInscrire()
   + seConnecter()
   + modifierProfil()
@@ -37,13 +37,12 @@ class Flotte {
   + modifierZone()
 }
 
+' La classe reste vide mais conserve son rôle et ses relations
 class Conducteur {
-  - id : Long
-  - nom : String
-  - prenom : String
-  - telephone : String
+  + recevoirAlerte()
+  
 }
-
+ 
 class Vehicule {
   - id : Long
   - immatriculation : String
@@ -55,10 +54,12 @@ class Vehicule {
 
 class Alerte {
   - id : Long
-  - horodatage : LocalDateTime
-  - latitude : Double
-  - longitude : Double
-  - message : String
+  - horodatageSortie : LocalDateTime
+  - horodatageEntrée : LocalDateTime
+  - latitudeSortie : Double
+  - longitudeSortie : Double
+  - latitudeEntrée : Double
+  - longitudeEntrée : Double
 }
 
 ' Relations
@@ -66,5 +67,5 @@ Utilisateur "1" -- "0..2" Flotte : gere >
 Flotte "1" -- "0..*" Vehicule : contient >
 Vehicule "0..1" -- "0..1" Conducteur : conduit <
 Vehicule "1" -- "0..*" Alerte : subit >
-Utilisateur <|-- Conducteur 
+Utilisateur <|-- Conducteur
 @enduml
