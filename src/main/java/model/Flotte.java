@@ -1,5 +1,5 @@
 package model;
-
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -10,7 +10,7 @@ public class Flotte {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long flotte_id;
 
     @Column(nullable = false)
     private String nom;
@@ -37,8 +37,8 @@ public class Flotte {
     }
 
     // Getters et Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() { return flotte_id; }
+    public void setId(Long id) { this.flotte_id = id; }
 
     public String getNom() { return nom; }
     public void setNom(String nom) { this.nom = nom; }
