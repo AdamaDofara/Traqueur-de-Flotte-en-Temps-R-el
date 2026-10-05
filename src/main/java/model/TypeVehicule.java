@@ -1,4 +1,4 @@
-package traqueur_flotte.model;
+package model;
 
 public enum TypeVehicule {
     VOITURE,
