@@ -38,6 +38,10 @@ public class User {
     @OneToMany(mappedBy = "gestionnaire")
     private List<Flotte> flottes = new ArrayList<>();
 
+    @OneToOne(mappedBy = "conducteur")
+    private Vehicule vehicule; 
+
+
     public User() {}
 
     // getters et setters 
