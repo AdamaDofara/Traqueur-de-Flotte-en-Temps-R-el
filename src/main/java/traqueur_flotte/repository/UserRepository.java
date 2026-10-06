@@ -1,4 +1,5 @@
-package repository;
+package traqueur_flotte.repository;
+import traqueur_flotte.model.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
 
-import model.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 
 	 boolean existsByEmail(String email);

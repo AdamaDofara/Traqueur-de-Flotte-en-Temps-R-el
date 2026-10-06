@@ -1,17 +1,22 @@
-package model;
+package traqueur_flotte.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Vehicule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "vehicule_id")
     private Long id;
 
     private String immatriculation;
@@ -20,6 +25,10 @@ public class Vehicule {
     private TypeVehicule type;
 
     private Boolean actif;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "flotte_id", nullable = true)
+    private Flotte flotte;
 
     // Constructeur vide requis par JPA
     public Vehicule() {
@@ -64,6 +73,14 @@ public class Vehicule {
 
     public void setActif(Boolean actif) {
         this.actif = actif;
+    }
+    
+    public Flotte getFlotte() {
+        return flotte;
+    }
+
+    public void setFlotte(Flotte flotte) {
+        this.flotte = flotte;
     }
 
     @Override

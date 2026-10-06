@@ -1,4 +1,4 @@
-package model;
+package traqueur_flotte.model;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +10,8 @@ public class Flotte {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long flotte_id;
+	@Column(name = "flotte_id")
+    private Long id;
 
     @Column(nullable = false)
     private String nom;
@@ -37,8 +38,8 @@ public class Flotte {
     }
 
     // Getters et Setters
-    public Long getId() { return flotte_id; }
-    public void setId(Long id) { this.flotte_id = id; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getNom() { return nom; }
     public void setNom(String nom) { this.nom = nom; }
