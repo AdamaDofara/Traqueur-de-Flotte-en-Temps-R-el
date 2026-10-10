@@ -1,33 +1,52 @@
 package traqueur_flotte.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import traqueur_flotte.model.User;
-import traqueur_flotte.repository.*;
+import traqueur_flotte.DTO.UserDTO;
+import traqueur_flotte.services.UserService;
+
+/**
+ * Couche Controller : gère uniquement les requêtes/réponses HTTP.
+ * Elle ne parle jamais au Repository directement, uniquement au Service.
+ */
 @RestController
+@RequestMapping("/api/users")
 public class UserController {
 
-	@Autowired
-    private UserRepository UserRepository;
-	
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     /**
      * 1. S'inscrire / Créer un nouveau compte
-     * POST /api/Users/inscription
+     * POST /api/users/inscription
      */
     @PostMapping("/inscription")
-    public ResponseEntity<?> inscrire(@RequestBody User User) {
-        if (UserRepository.existsByEmail(User.getEmail())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Erreur : L'adresse email est déjà utilisée.");
+    public ResponseEntity<?> inscrire(@RequestBody UserDTO userDTO) {
+        try {
+            UserDTO nouvelUser = userService.inscrire(userDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(nouvelUser);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        User.setActif(true);
-        User nouvelUser = UserRepository.save(User);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nouvelUser);
+    }
+
+    /**
+     * 2. Lister tous les utilisateurs
+     * GET /api/users
+     */
+    @GetMapping
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 }
