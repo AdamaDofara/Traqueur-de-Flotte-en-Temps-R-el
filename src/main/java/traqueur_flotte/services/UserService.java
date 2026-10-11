@@ -45,6 +45,16 @@ public class UserService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+    /**
+     * Récupérer un utilisateur par ID.
+     */
+    public UserDTO getUserById(Long id) {
+        User user = userRepository.getReferenceById(id);
+        if (user == null) {
+            throw new IllegalStateException("Utilisateur non trouvé avec l'ID : " + id);
+        }
+        return toDTO(user);
+    }
 
     // ---------- Conversions DTO <-> Entité ----------
 
