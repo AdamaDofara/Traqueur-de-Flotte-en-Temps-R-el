@@ -1,7 +1,7 @@
 package traqueur_flotte.model;
 
 import java.util.ArrayList;
-import java.util.List; 
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,36 +24,47 @@ public class Vehicule {
     @Column(name = "vehicule_id")
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String immatriculation;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TypeVehicule type;
 
-    private Boolean actif;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "flotte_id", nullable = true)
-    private Flotte flotte;
+    @Column(nullable = false)
+    private Boolean actif = false;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "flotte_id")
+    private Flotte flotte;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conducteur_id", unique = true)
-    private User conducteur; 
+    private User conducteur;
 
     @OneToMany(mappedBy = "vehicule")
     private List<Alerte> alertes = new ArrayList<>();
 
+
+    // Constructeur vide requis par JPA
     public Vehicule() {
     }
 
     // Constructeur pratique
-    public Vehicule(String immatriculation, TypeVehicule type, Boolean actif) {
+    public Vehicule(
+            String immatriculation,
+            TypeVehicule type,
+            Boolean actif) {
+
         this.immatriculation = immatriculation;
         this.type = type;
         this.actif = actif;
     }
 
-    // Getters et setters
+
+    // =========================
+    // Getters et Setters
+    // =========================
 
     public Long getId() {
         return id;
@@ -86,7 +97,7 @@ public class Vehicule {
     public void setActif(Boolean actif) {
         this.actif = actif;
     }
-    
+
     public Flotte getFlotte() {
         return flotte;
     }
@@ -94,6 +105,36 @@ public class Vehicule {
     public void setFlotte(Flotte flotte) {
         this.flotte = flotte;
     }
+
+    public User getConducteur() {
+        return conducteur;
+    }
+
+    public void setConducteur(User conducteur) {
+        this.conducteur = conducteur;
+    }
+
+    public List<Alerte> getAlertes() {
+        return alertes;
+    }
+
+    public void setAlertes(List<Alerte> alertes) {
+        this.alertes = alertes;
+    }
+
+
+    // =========================
+    // Méthodes métier simples
+    // =========================
+
+    public void associerConducteur(User conducteur) {
+        this.conducteur = conducteur;
+    }
+
+    public void dissocierConducteur() {
+        this.conducteur = null;
+    }
+
 
     @Override
     public String toString() {
