@@ -18,7 +18,7 @@ public class Flotte {
 
     private Double centreLatitude;
     private Double centreLongitude;
-    private Double rayonMeters;
+    private Double rayonMetres;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gestionnaire_id")
@@ -30,11 +30,16 @@ public class Flotte {
     // Constructeurs
     public Flotte() {}
 
-    public Flotte(String nom, Double centreLatitude, Double centreLongitude, Double rayonMeters) {
+    public Flotte(
+            String nom,
+            Double centreLatitude,
+            Double centreLongitude,
+            Double rayonMetres) {
+
         this.nom = nom;
         this.centreLatitude = centreLatitude;
         this.centreLongitude = centreLongitude;
-        this.rayonMeters = rayonMeters;
+        this.rayonMetres = rayonMetres;
     }
 
     // Getters et Setters
@@ -50,8 +55,11 @@ public class Flotte {
     public Double getCentreLongitude() { return centreLongitude; }
     public void setCentreLongitude(Double centreLongitude) { this.centreLongitude = centreLongitude; }
 
-    public Double getRayonMeters() { return rayonMeters; }
-    public void setRayonMeters(Double rayonMeters) { this.rayonMeters = rayonMeters; }
+    public Double getRayonMetres() { return rayonMetres; }
+
+    public void setRayonMetres(Double rayonMetres) {
+    this.rayonMetres = rayonMetres;
+}
 
     public User getGestionnaire() { return gestionnaire; }
     public void setGestionnaire(User gestionnaire) { this.gestionnaire = gestionnaire; }
