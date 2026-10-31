@@ -30,11 +30,16 @@ public class Flotte {
     // Constructeurs
     public Flotte() {}
 
-    public Flotte(String nom, Double centreLatitude, Double centreLongitude, Double rayonMeters) {
+    public Flotte(
+            String nom,
+            Double centreLatitude,
+            Double centreLongitude,
+            Double rayonMetres) {
+
         this.nom = nom;
         this.centreLatitude = centreLatitude;
         this.centreLongitude = centreLongitude;
-        this.rayonMetres = rayonMeters;
+        this.rayonMetres = rayonMetres;
     }
 
     // Getters et Setters
@@ -51,7 +56,10 @@ public class Flotte {
     public void setCentreLongitude(Double centreLongitude) { this.centreLongitude = centreLongitude; }
 
     public Double getRayonMetres() { return rayonMetres; }
-    public void setRayonMetres(Double rayonMeters) { this.rayonMetres = rayonMeters; }
+
+    public void setRayonMetres(Double rayonMetres) {
+    this.rayonMetres = rayonMetres;
+}
 
     public User getGestionnaire() { return gestionnaire; }
     public void setGestionnaire(User gestionnaire) { this.gestionnaire = gestionnaire; }

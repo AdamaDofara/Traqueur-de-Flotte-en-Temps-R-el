@@ -14,5 +14,6 @@ public interface VehiculeRepository extends JpaRepository<Vehicule, Long>{
     List<Vehicule> findByActif(boolean actif);
     List<Vehicule> findByFlotteId(Long flotteId);
     Optional<Vehicule> findByConducteurId(Long conducteurId);
+    long countByFlotteIdAndActifTrue(Long flotteId);
 
 }
