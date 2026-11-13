@@ -9,5 +9,12 @@ import traqueur_flotte.model.Flotte;
 public interface FlotteRepository extends JpaRepository<Flotte, Long>{
 
     List<Flotte> findByGestionnaireId(Long gestionnaireId);
+
+    boolean existsByNomAndGestionnaireId(
+        String nom,
+        Long gestionnaireId
+    );
+
+    int countByGestionnaireId(Long gestionnaireId);
     
 }

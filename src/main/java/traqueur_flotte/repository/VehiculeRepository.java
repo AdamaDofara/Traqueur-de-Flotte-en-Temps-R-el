@@ -13,6 +13,7 @@ public interface VehiculeRepository
     List<Vehicule> findByFlotteId(Long flotteId);
 
     Optional<Vehicule> findByConducteurId(Long conducteurId);
+    long countByFlotteIdAndActifTrue(Long flotteId);
 
     boolean existsByImmatriculation(String immatriculation);
 }
