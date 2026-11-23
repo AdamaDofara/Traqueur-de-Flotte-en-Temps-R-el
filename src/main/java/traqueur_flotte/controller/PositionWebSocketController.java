@@ -11,6 +11,8 @@ import traqueur_flotte.DTO.PositionGpsMessage;
 import traqueur_flotte.DTO.PositionGpsRequest;
 import traqueur_flotte.services.PositionService;
 
+import java.security.Principal;
+
 @Controller
 @Profile("websocket-demo")
 public class PositionWebSocketController {
@@ -27,8 +29,10 @@ public class PositionWebSocketController {
     }
 
     @MessageMapping("/positions")
-    public void recevoirPosition(PositionGpsRequest demande) {
-        PositionGpsMessage position = positionService.preparerPosition(demande);
+    public void recevoirPosition(PositionGpsRequest demande, Principal utilisateur) {
+        Long conducteurId = Long.valueOf(utilisateur.getName());
+        PositionGpsMessage position = positionService.preparerPosition(demande, conducteurId);
+
         String destination = "/topic/flottes/" + position.flotteId() + "/positions";
         messagerie.convertAndSend(destination, position);
     }
