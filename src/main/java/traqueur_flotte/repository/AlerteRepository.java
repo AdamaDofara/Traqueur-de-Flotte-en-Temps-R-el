@@ -14,4 +14,8 @@ public interface AlerteRepository extends JpaRepository<Alerte, Long> {
     Optional<Alerte> findFirstByVehiculeIdAndHorodatageEntreeIsNullOrderByIdDesc(
             Long vehiculeId
     );
+
+    List<Alerte> findByVehicule_Flotte_IdOrderByHorodatageSortieDescIdDesc(
+            Long flotteId
+    );
 }
