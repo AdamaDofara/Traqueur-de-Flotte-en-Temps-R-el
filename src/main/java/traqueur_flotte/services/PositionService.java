@@ -1,6 +1,7 @@
 package traqueur_flotte.services;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,9 @@ public class PositionService {
             throw new IllegalArgumentException("Ce véhicule n'est associé à aucune flotte.");
         }
 
-        Instant recueA = Instant.now();
+        Instant recueA = Instant.now().truncatedTo(ChronoUnit.MICROS);
+        vehicule.enregistrerPosition(demande.latitude(), demande.longitude(), recueA);
+
         zoneFlotteService.traiterPosition(
                 vehicule, flotte, demande.latitude(), demande.longitude(), recueA
         );

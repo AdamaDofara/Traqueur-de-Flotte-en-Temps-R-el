@@ -28,7 +28,7 @@ import traqueur_flotte.repository.UserRepository;
 public class StompAuthInterceptor implements ChannelInterceptor {
 
     private static final Pattern CANAL_FLOTTE =
-            Pattern.compile("/topic/flottes/([1-9][0-9]*)/positions");
+            Pattern.compile("/topic/flottes/([1-9][0-9]*)/(?:positions|alertes)");
 
     private final JwtDecoder jwtDecoder;
     private final JwtAuthenticationConverter jwtConverter;

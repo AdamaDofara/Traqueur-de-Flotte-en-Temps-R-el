@@ -5,9 +5,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import traqueur_flotte.DTO.AlerteNotificationDTO;
+import traqueur_flotte.DTO.AlerteNotificationDTO.Type;
 import traqueur_flotte.model.Alerte;
 import traqueur_flotte.model.Flotte;
 import traqueur_flotte.model.Vehicule;
@@ -20,9 +23,14 @@ public class ZoneFlotteService {
     private static final double RAYON_TERRE_METRES = 6_371_000;
 
     private final AlerteRepository alerteRepository;
+    private final ApplicationEventPublisher evenements;
 
-    public ZoneFlotteService(AlerteRepository alerteRepository) {
+    public ZoneFlotteService(
+            AlerteRepository alerteRepository,
+            ApplicationEventPublisher evenements
+    ) {
         this.alerteRepository = alerteRepository;
+        this.evenements = evenements;
     }
 
     public void traiterPosition(
@@ -48,7 +56,9 @@ public class ZoneFlotteService {
         boolean horsZone = distance > rayon;
 
         Optional<Alerte> alerteOuverte = alerteRepository
-                .findFirstByVehiculeIdAndHorodatageEntreeIsNullOrderByIdDesc(vehicule.getId());
+                .findFirstByVehiculeIdAndHorodatageEntreeIsNullOrderByIdDesc(
+                        vehicule.getId()
+                );
 
         LocalDateTime heureUtc = LocalDateTime.ofInstant(recueA, ZoneOffset.UTC);
 
@@ -58,14 +68,42 @@ public class ZoneFlotteService {
             alerte.setHorodatageSortie(heureUtc);
             alerte.setLatitudeSortie(latitude);
             alerte.setLongitudeSortie(longitude);
-            alerteRepository.save(alerte);
+
+            enregistrerEtSignaler(
+                    alerte, flotte, vehicule, Type.OUVERTE, latitude, longitude, recueA
+            );
         } else if (!horsZone && alerteOuverte.isPresent()) {
             Alerte alerte = alerteOuverte.get();
             alerte.setHorodatageEntree(heureUtc);
             alerte.setLatitudeEntree(latitude);
             alerte.setLongitudeEntree(longitude);
-            alerteRepository.save(alerte);
+
+            enregistrerEtSignaler(
+                    alerte, flotte, vehicule, Type.CLOTUREE, latitude, longitude, recueA
+            );
         }
+    }
+
+    private void enregistrerEtSignaler(
+            Alerte alerte,
+            Flotte flotte,
+            Vehicule vehicule,
+            Type type,
+            double latitude,
+            double longitude,
+            Instant recueA
+    ) {
+        Alerte alerteEnregistree = alerteRepository.save(alerte);
+
+        evenements.publishEvent(new AlerteNotificationDTO(
+                alerteEnregistree.getId(),
+                flotte.getId(),
+                vehicule.getId(),
+                type,
+                latitude,
+                longitude,
+                recueA.toString()
+        ));
     }
 
     private boolean dansIntervalle(Double valeur, double min, double max) {

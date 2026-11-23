@@ -114,7 +114,10 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/flottes/{flotteId}/alertes").authenticated()
+                        .requestMatchers(
+                                "/api/flottes/{flotteId}/alertes",
+                                "/api/flottes/{flotteId}/positions"
+                        ).authenticated()
                         .requestMatchers(
                                 "/api/users/inscription",
                                 "/api/users/connexion",

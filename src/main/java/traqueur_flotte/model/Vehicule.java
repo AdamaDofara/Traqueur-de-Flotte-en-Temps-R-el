@@ -1,5 +1,6 @@
 package traqueur_flotte.model;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
+import org.hibernate.annotations.DynamicUpdate;
+
 @Entity
+@DynamicUpdate
 public class Vehicule {
 
     @Id
@@ -34,6 +38,15 @@ public class Vehicule {
     @Column(nullable = false)
     private Boolean actif = false;
 
+    @Column(name = "derniere_latitude")
+    private Double derniereLatitude;
+
+    @Column(name = "derniere_longitude")
+    private Double derniereLongitude;
+
+    @Column(name = "derniere_position_recue_a")
+    private Instant dernierePositionRecueA;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "flotte_id")
     private Flotte flotte;
@@ -45,26 +58,14 @@ public class Vehicule {
     @OneToMany(mappedBy = "vehicule")
     private List<Alerte> alertes = new ArrayList<>();
 
-
-    // Constructeur vide requis par JPA
     public Vehicule() {
     }
 
-    // Constructeur pratique
-    public Vehicule(
-            String immatriculation,
-            TypeVehicule type,
-            Boolean actif) {
-
+    public Vehicule(String immatriculation, TypeVehicule type, Boolean actif) {
         this.immatriculation = immatriculation;
         this.type = type;
         this.actif = actif;
     }
-
-
-    // =========================
-    // Getters et Setters
-    // =========================
 
     public Long getId() {
         return id;
@@ -98,6 +99,24 @@ public class Vehicule {
         this.actif = actif;
     }
 
+    public Double getDerniereLatitude() {
+        return derniereLatitude;
+    }
+
+    public Double getDerniereLongitude() {
+        return derniereLongitude;
+    }
+
+    public Instant getDernierePositionRecueA() {
+        return dernierePositionRecueA;
+    }
+
+    public void enregistrerPosition(double latitude, double longitude, Instant recueA) {
+        this.derniereLatitude = latitude;
+        this.derniereLongitude = longitude;
+        this.dernierePositionRecueA = recueA;
+    }
+
     public Flotte getFlotte() {
         return flotte;
     }
@@ -122,11 +141,6 @@ public class Vehicule {
         this.alertes = alertes;
     }
 
-
-    // =========================
-    // Méthodes métier simples
-    // =========================
-
     public void associerConducteur(User conducteur) {
         this.conducteur = conducteur;
     }
@@ -134,7 +148,6 @@ public class Vehicule {
     public void dissocierConducteur() {
         this.conducteur = null;
     }
-
 
     @Override
     public String toString() {
