@@ -4,6 +4,7 @@ public record AlerteNotificationDTO(
         Long alerteId,
         Long flotteId,
         Long vehiculeId,
+        String immatriculation,
         Type type,
         double latitude,
         double longitude,
@@ -11,6 +12,7 @@ public record AlerteNotificationDTO(
 ) {
     public enum Type {
         OUVERTE,
+        RAPPEL,
         CLOTUREE
     }
 }

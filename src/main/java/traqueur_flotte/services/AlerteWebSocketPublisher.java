@@ -10,6 +10,8 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import traqueur_flotte.DTO.AlerteNotificationDTO;
+import traqueur_flotte.DTO.AlerteNotificationDTO.Type;
+import traqueur_flotte.services.ZoneFlotteService.NotificationAlerte;
 
 @Component
 @Profile("websocket-demo")
@@ -25,9 +27,17 @@ public class AlerteWebSocketPublisher {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void diffuser(AlerteNotificationDTO notification) {
-        String destination = "/topic/flottes/" + notification.flotteId() + "/alertes";
+    public void diffuser(NotificationAlerte evenement) {
+        AlerteNotificationDTO notification = evenement.message();
+        if (notification.type() != Type.RAPPEL) {
+            envoyer("/topic/flottes/" + notification.flotteId() + "/alertes", notification);
+        }
+        if (evenement.conducteurId() != null) {
+            envoyer("/topic/conducteur/" + evenement.conducteurId() + "/alertes", notification);
+        }
+    }
 
+    private void envoyer(String destination, AlerteNotificationDTO notification) {
         try {
             messagerie.convertAndSend(destination, notification);
         } catch (MessagingException exception) {

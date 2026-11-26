@@ -30,6 +30,9 @@ public class StompAuthInterceptor implements ChannelInterceptor {
     private static final Pattern CANAL_FLOTTE =
             Pattern.compile("/topic/flottes/([1-9][0-9]*)/(?:positions|alertes)");
 
+    private static final Pattern CANAL_CONDUCTEUR =
+            Pattern.compile("/topic/conducteur/([1-9][0-9]*)/alertes");
+
     private final JwtDecoder jwtDecoder;
     private final JwtAuthenticationConverter jwtConverter;
     private final UserRepository userRepository;
@@ -125,7 +128,17 @@ public class StompAuthInterceptor implements ChannelInterceptor {
             return;
         }
 
-        Matcher canal = CANAL_FLOTTE.matcher(destination == null ? "" : destination);
+        String destinationDemandee = destination == null ? "" : destination;
+        Matcher canalConducteur = CANAL_CONDUCTEUR.matcher(destinationDemandee);
+        if (canalConducteur.matches()) {
+            if (utilisateur.getRole() != Role.CONDUCTEUR
+                    || !utilisateur.getId().equals(lireId(canalConducteur.group(1)))) {
+                throw new AccessDeniedException("Canal conducteur inaccessible.");
+            }
+            return;
+        }
+
+        Matcher canal = CANAL_FLOTTE.matcher(destinationDemandee);
         if (!canal.matches()) {
             throw new AccessDeniedException("Abonnement STOMP interdit.");
         }

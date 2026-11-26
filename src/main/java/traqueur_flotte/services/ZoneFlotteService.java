@@ -69,22 +69,27 @@ public class ZoneFlotteService {
             alerte.setLatitudeSortie(latitude);
             alerte.setLongitudeSortie(longitude);
 
-            enregistrerEtSignaler(
-                    alerte, flotte, vehicule, Type.OUVERTE, latitude, longitude, recueA
-            );
+            Alerte enregistree = alerteRepository.save(alerte);
+            signaler(enregistree, flotte, vehicule, Type.OUVERTE,
+                    enregistree.getLatitudeSortie(), enregistree.getLongitudeSortie(),
+                    enregistree.getHorodatageSortie().toInstant(ZoneOffset.UTC));
+        } else if (horsZone && alerteOuverte.isPresent()) {
+            signaler(alerteOuverte.get(), flotte, vehicule, Type.RAPPEL,
+                    latitude, longitude, recueA);
         } else if (!horsZone && alerteOuverte.isPresent()) {
             Alerte alerte = alerteOuverte.get();
             alerte.setHorodatageEntree(heureUtc);
             alerte.setLatitudeEntree(latitude);
             alerte.setLongitudeEntree(longitude);
 
-            enregistrerEtSignaler(
-                    alerte, flotte, vehicule, Type.CLOTUREE, latitude, longitude, recueA
-            );
+            Alerte enregistree = alerteRepository.save(alerte);
+            signaler(enregistree, flotte, vehicule, Type.CLOTUREE,
+                    enregistree.getLatitudeEntree(), enregistree.getLongitudeEntree(),
+                    enregistree.getHorodatageEntree().toInstant(ZoneOffset.UTC));
         }
     }
 
-    private void enregistrerEtSignaler(
+    private void signaler(
             Alerte alerte,
             Flotte flotte,
             Vehicule vehicule,
@@ -93,17 +98,22 @@ public class ZoneFlotteService {
             double longitude,
             Instant recueA
     ) {
-        Alerte alerteEnregistree = alerteRepository.save(alerte);
-
-        evenements.publishEvent(new AlerteNotificationDTO(
-                alerteEnregistree.getId(),
+        var conducteur = vehicule.getConducteur();
+        Long conducteurId = conducteur == null ? null : conducteur.getId();
+        var notification = new AlerteNotificationDTO(
+                alerte.getId(),
                 flotte.getId(),
                 vehicule.getId(),
+                vehicule.getImmatriculation(),
                 type,
                 latitude,
                 longitude,
                 recueA.toString()
-        ));
+        );
+        evenements.publishEvent(new NotificationAlerte(notification, conducteurId));
+    }
+
+    record NotificationAlerte(AlerteNotificationDTO message, Long conducteurId) {
     }
 
     private boolean dansIntervalle(Double valeur, double min, double max) {

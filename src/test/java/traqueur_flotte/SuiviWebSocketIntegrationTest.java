@@ -147,6 +147,11 @@ class SuiviWebSocketIntegrationTest {
         attendreAbonnement(canalPositions);
         attendreAbonnement(canalAlertes);
 
+        BlockingQueue<byte[]> alertesConducteur = new LinkedBlockingQueue<>();
+        String canalConducteur = "/topic/conducteur/" + conducteur.getId() + "/alertes";
+        emission.subscribe(canalConducteur, recevoirDans(alertesConducteur));
+        attendreAbonnement(canalConducteur);
+
         envoyerPosition(emission, 48.12, 2.1);
         verifierPosition(positions, 48.12, 2.1);
         AlerteNotificationDTO ouverture = lireMessage(alertes, AlerteNotificationDTO.class);
@@ -156,9 +161,17 @@ class SuiviWebSocketIntegrationTest {
         assertEquals(flotte.getId(), ouverture.flotteId());
         assertEquals(vehicule.getId(), ouverture.vehiculeId());
         assertEquals(48.12, ouverture.latitude(), 0.000001);
+        assertEquals(vehicule.getImmatriculation(), ouverture.immatriculation());
+        assertEquals(2.1, ouverture.longitude(), 0.000001);
+        assertNotNull(ouverture.horodatage());
+        assertEquals(ouverture, lireMessage(alertesConducteur, AlerteNotificationDTO.class));
 
         envoyerPosition(emission, 48.13, 2.1);
         verifierPosition(positions, 48.13, 2.1);
+        var rappel = lireMessage(alertesConducteur, AlerteNotificationDTO.class);
+        assertEquals(AlerteNotificationDTO.Type.RAPPEL, rappel.type());
+        assertEquals(ouverture.alerteId(), rappel.alerteId());
+        assertEquals(48.13, rappel.latitude(), 0.000001);
 
         envoyerPosition(emission, 48.1, 2.1);
         verifierPosition(positions, 48.1, 2.1);
@@ -169,6 +182,7 @@ class SuiviWebSocketIntegrationTest {
         assertEquals(flotte.getId(), cloture.flotteId());
         assertEquals(vehicule.getId(), cloture.vehiculeId());
         assertEquals(48.1, cloture.latitude(), 0.000001);
+        assertEquals(cloture, lireMessage(alertesConducteur, AlerteNotificationDTO.class));
 
         assertNull(alertes.poll(500, TimeUnit.MILLISECONDS),
                 "Le trajet doit produire uniquement une ouverture et une clôture.");
@@ -180,10 +194,21 @@ class SuiviWebSocketIntegrationTest {
         User autreGestionnaire = creerCompte(Role.GESTIONNAIRE);
         creerFlotte(autreGestionnaire);
 
+        verifierAbonnementRefuse(autreGestionnaire, canal("alertes"));
+    }
+
+    @Test
+    void conducteurNePeutPasSabonnerAuxAlertesDunAutreConducteur() throws Exception {
+        User autreConducteur = creerCompte(Role.CONDUCTEUR);
+        verifierAbonnementRefuse(autreConducteur,
+                "/topic/conducteur/" + conducteur.getId() + "/alertes");
+    }
+
+    private void verifierAbonnementRefuse(User compte, String destination) throws Exception {
         CompletableFuture<StompHeaders> erreurStomp = new CompletableFuture<>();
 
         StompSession suiviInterdit = connecter(
-                autreGestionnaire,
+                compte,
                 new StompSessionHandlerAdapter() {
                     @Override
                     public Type getPayloadType(StompHeaders headers) {
@@ -198,12 +223,12 @@ class SuiviWebSocketIntegrationTest {
         );
 
         BlockingQueue<byte[]> messages = new LinkedBlockingQueue<>();
-        suiviInterdit.subscribe(canal("alertes"), recevoirDans(messages));
+        suiviInterdit.subscribe(destination, recevoirDans(messages));
 
         StompHeaders erreur = erreurStomp.get(DELAI_SECONDES, TimeUnit.SECONDS);
         assertNotNull(erreur.getFirst("message"), "Le serveur doit renvoyer une trame ERROR.");
         assertTrue(messages.isEmpty());
-        assertTrue(abonnements(canal("alertes")).isEmpty(),
+        assertTrue(abonnements(destination).isEmpty(),
                 "Le broker ne doit pas enregistrer l'abonnement interdit.");
     }
 
